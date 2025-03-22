@@ -11,14 +11,14 @@ import (
 func CreatePool(ctx context.Context, cnf config.DatabaseConfig) (*pgxpool.Pool, error) {
 	conf, err := pgxpool.ParseConfig(createConnString(cnf))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error parsing db config: %w", err)
 	}
 
 	configure(conf)
 
 	pool, err := pgxpool.NewWithConfig(ctx, conf)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating pool: %w", err)
 	}
 
 	return pool, ping(ctx, pool)
@@ -26,7 +26,7 @@ func CreatePool(ctx context.Context, cnf config.DatabaseConfig) (*pgxpool.Pool, 
 
 func createConnString(cnf config.DatabaseConfig) string {
 	return fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=true",
+		"postgres://%s:%s@%s:%s/%s",
 		cnf.User,
 		cnf.Password,
 		cnf.Host,

@@ -19,3 +19,5 @@ tmp/
 # Go specific
 *.log
 go.work
+
+config.yaml
