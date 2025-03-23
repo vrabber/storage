@@ -6,5 +6,6 @@ import (
 
 type Store interface {
 	RegisterDriver(driver driver.Driver) error
-	SetTemporary(driver driver.Driver) error
+	SetTemporary(tmp Temporary)
+	Temporary() (Temporary, error)
 }

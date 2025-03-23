@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"log/slog"
 	"os/signal"
@@ -47,7 +48,7 @@ func main() {
 		panic(err)
 	}
 
-	srv := service.NewService(repo)
+	srv := service.NewService(repo, fileStore)
 
 	server_ := server.NewServer(srv, cnf.Server)
 	if err = server_.Run(ctx); err != nil {
@@ -60,5 +61,11 @@ func setupStoreDrivers(s store.Store) error {
 		return err
 	}
 
-	return s.SetTemporary(driver.NewLocalDriver("./file-parts"))
+	tmp, ok := driver.NewLocalDriver("./temporary").(store.Temporary)
+	if !ok {
+		return errors.New("local driver does not implement Temporary")
+	}
+
+	s.SetTemporary(tmp)
+	return nil
 }

@@ -10,7 +10,7 @@ import (
 type Implementation struct {
 	drivers   map[string]driver.Driver
 	lock      sync.RWMutex
-	temporary driver.Driver
+	temporary Temporary
 }
 
 func NewImplementation() *Implementation {
@@ -20,10 +20,13 @@ func NewImplementation() *Implementation {
 	}
 }
 
-func (i *Implementation) SetTemporary(driver driver.Driver) error {
-	if !driver.SupportsSeek() {
-		return fmt.Errorf("driver %s does not support seeking", driver.Name())
+func (i *Implementation) SetTemporary(tmp Temporary) {
+	i.temporary = tmp
+}
+
+func (i *Implementation) Temporary() (Temporary, error) {
+	if i.temporary == nil {
+		return nil, fmt.Errorf("temporary driver not initialized")
 	}
-	i.temporary = driver
-	return nil
+	return i.temporary, nil
 }
