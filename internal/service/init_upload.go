@@ -19,7 +19,8 @@ func (i *Implementation) InitUpload(ctx context.Context, req *pb.FileInfo) (stri
 	}
 
 	fileName := uuid.NewString()
-	if err := i.reserveFile(ctx, fileName, req.Size); err != nil {
+	path, err := i.reserveFile(ctx, fileName, req.Size)
+	if err != nil {
 		return "", err
 	}
 
@@ -31,29 +32,29 @@ func (i *Implementation) InitUpload(ctx context.Context, req *pb.FileInfo) (stri
 
 	uploadID := uuid.New()
 
-	if err = i.storeFileUpload(ctx, fileInfo, uploadID); err != nil {
+	if err = i.storeFileUpload(ctx, fileName, path, fileInfo, uploadID); err != nil {
 		return "", err
 	}
 
 	return uploadID.String(), nil
 }
 
-func (i *Implementation) reserveFile(ctx context.Context, name string, size uint64) error {
+func (i *Implementation) reserveFile(ctx context.Context, name string, size uint64) (string, error) {
 	temp, err := i.store.Temporary()
 	if err != nil {
 		slog.Error("failed to get temporary storage", "err", err)
-		return ErrorInitUploadInternal
+		return "", ErrorInitUploadInternal
 	}
 
 	if err = temp.Reserve(ctx, name, size); err != nil {
 		slog.Error("failed to reserve file", "err", err)
 
 		if errors.Is(err, driver.ErrorFileExists) {
-			return ErrorInitUploadFileExists
+			return "", ErrorInitUploadFileExists
 		}
-		return err
+		return "", err
 	}
-	return nil
+	return temp.Path(), nil
 }
 
 func (i *Implementation) releaseFile(ctx context.Context, name string) {
@@ -79,9 +80,11 @@ func (i *Implementation) storeFileInfo(ctx context.Context, req *pb.FileInfo) (m
 	return result, nil
 }
 
-func (i *Implementation) storeFileUpload(ctx context.Context, fileInfo models.FileInfo, uploadID uuid.UUID) error {
+func (i *Implementation) storeFileUpload(ctx context.Context, name string, path string, fileInfo models.FileInfo, uploadID uuid.UUID) error {
 	upload := models.FileUpload{
 		UploadID: uploadID,
+		Name:     name,
+		Path:     path,
 		FileInfo: &fileInfo,
 	}
 

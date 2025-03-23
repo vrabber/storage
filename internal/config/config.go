@@ -2,6 +2,7 @@ package config
 
 import (
 	"log/slog"
+	"time"
 )
 
 type Config struct {
@@ -23,8 +24,9 @@ type LogConfig struct {
 }
 
 type ServerConfig struct {
-	Host string
-	Port string
+	Host              string
+	Port              string
+	PartUploadTimeout time.Duration
 }
 
 type Loader interface {

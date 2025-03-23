@@ -46,7 +46,7 @@ func main() {
 	}
 	defer pool.Close()
 
-	repo := repository.NewRepositoryImplementation(pool)
+	repo := repository.NewRepositoryImplementation(db.NewTransactorImpl(pool))
 	fileStore := store.NewImplementation()
 
 	if err = setupStoreDrivers(fileStore); err != nil {
@@ -56,8 +56,8 @@ func main() {
 
 	srv := service.NewService(repo, fileStore)
 
-	server_ := server.NewServer(srv, cnf.Server)
-	if err = server_.Run(ctx); err != nil {
+	server_ := server.NewServer(ctx, srv, cnf.Server)
+	if err = server_.Run(); err != nil {
 		slog.Error("application stopped", "err", err)
 	}
 }

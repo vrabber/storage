@@ -14,18 +14,20 @@ import (
 
 type Server struct {
 	pb.UnimplementedStorageServiceServer
+	ctx  context.Context
 	srv  service.Service
 	conf config.ServerConfig
 }
 
-func NewServer(srv service.Service, conf config.ServerConfig) *Server {
+func NewServer(ctx context.Context, srv service.Service, conf config.ServerConfig) *Server {
 	return &Server{
+		ctx:  ctx,
 		srv:  srv,
 		conf: conf,
 	}
 }
 
-func (s *Server) Run(ctx context.Context) error {
+func (s *Server) Run() error {
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", s.conf.Host, s.conf.Port))
 	if err != nil {
 		return err
@@ -34,7 +36,7 @@ func (s *Server) Run(ctx context.Context) error {
 	grpcServer := grpc.NewServer()
 
 	go func() {
-		<-ctx.Done()
+		<-s.ctx.Done()
 		grpcServer.GracefulStop()
 	}()
 

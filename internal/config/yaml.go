@@ -1,8 +1,10 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -19,8 +21,9 @@ type yamlConfig struct {
 		Level string `yaml:"level"`
 	} `yaml:"logging"`
 	Server struct {
-		Host string `yaml:"host"`
-		Port string `yaml:"port"`
+		Host              string `yaml:"host"`
+		Port              string `yaml:"port"`
+		PartUploadTimeout int    `yaml:"part_upload_timeout"`
 	} `yaml:"server"`
 }
 
@@ -43,6 +46,10 @@ func (y *YamlLoader) Load() (*Config, error) {
 		return nil, fmt.Errorf("error unmarshaling config: %w", err)
 	}
 
+	if yamlCfg.Server.PartUploadTimeout < 0 {
+		return nil, errors.New("invalid server.part_upload_timeout")
+	}
+
 	return &Config{
 		Database: DatabaseConfig{
 			Name:     yamlCfg.Database.Name,
@@ -55,8 +62,9 @@ func (y *YamlLoader) Load() (*Config, error) {
 			Level: parseLogLevel(yamlCfg.Logging.Level),
 		},
 		Server: ServerConfig{
-			Host: yamlCfg.Server.Host,
-			Port: yamlCfg.Server.Port,
+			Host:              yamlCfg.Server.Host,
+			Port:              yamlCfg.Server.Port,
+			PartUploadTimeout: time.Duration(yamlCfg.Server.PartUploadTimeout) * time.Second,
 		},
 	}, nil
 }

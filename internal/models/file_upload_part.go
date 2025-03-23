@@ -8,5 +8,5 @@ type FileUploadPart struct {
 	Size       int64
 	Offset     int64
 	StartedAt  time.Time
-	FinishedAt time.Time
+	FinishedAt *time.Time
 }
