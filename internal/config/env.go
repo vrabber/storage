@@ -20,5 +20,9 @@ func (e *EnvLoader) Load() (*Config, error) {
 		Logging: LogConfig{
 			Level: parseLogLevel(os.Getenv("LOG_LEVEL")),
 		},
+		Server: ServerConfig{
+			Host: os.Getenv("SERVER_HOST"),
+			Port: os.Getenv("SERVER_PORT"),
+		},
 	}, nil
 }

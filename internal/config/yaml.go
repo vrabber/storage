@@ -18,6 +18,10 @@ type yamlConfig struct {
 	Logging struct {
 		Level string `yaml:"level"`
 	} `yaml:"logging"`
+	Server struct {
+		Host string `yaml:"host"`
+		Port string `yaml:"port"`
+	} `yaml:"server"`
 }
 
 type YamlLoader struct {
@@ -49,6 +53,10 @@ func (y *YamlLoader) Load() (*Config, error) {
 		},
 		Logging: LogConfig{
 			Level: parseLogLevel(yamlCfg.Logging.Level),
+		},
+		Server: ServerConfig{
+			Host: yamlCfg.Server.Host,
+			Port: yamlCfg.Server.Port,
 		},
 	}, nil
 }

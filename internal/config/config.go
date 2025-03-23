@@ -4,6 +4,12 @@ import (
 	"log/slog"
 )
 
+type Config struct {
+	Database DatabaseConfig
+	Logging  LogConfig
+	Server   ServerConfig
+}
+
 type DatabaseConfig struct {
 	Name     string
 	User     string
@@ -16,9 +22,9 @@ type LogConfig struct {
 	Level slog.Level
 }
 
-type Config struct {
-	Database DatabaseConfig
-	Logging  LogConfig
+type ServerConfig struct {
+	Host string
+	Port string
 }
 
 type Loader interface {

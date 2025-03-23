@@ -49,8 +49,8 @@ func main() {
 
 	srv := service.NewService(repo)
 
-	server_ := server.NewServer(srv)
-	if err = server_.Run(); err != nil {
+	server_ := server.NewServer(srv, cnf.Server)
+	if err = server_.Run(ctx); err != nil {
 		slog.Error("application stopped", "err", err)
 	}
 }
