@@ -56,8 +56,9 @@ func main() {
 }
 
 func setupStoreDrivers(s store.Store) error {
-	if err := s.RegisterDriver(driver.NewLocalDriver(".")); err != nil {
+	if err := s.RegisterDriver(driver.NewLocalDriver("./data")); err != nil {
 		return err
 	}
-	return nil
+
+	return s.SetTemporary(driver.NewLocalDriver("./file-parts"))
 }

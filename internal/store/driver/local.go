@@ -9,5 +9,9 @@ func NewLocalDriver(basePath string) *LocalDriver {
 }
 
 func (l *LocalDriver) Name() string {
-	return "local"
+	return Local
+}
+
+func (l *LocalDriver) SupportsSeek() bool {
+	return true
 }
