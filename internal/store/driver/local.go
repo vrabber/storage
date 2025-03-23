@@ -33,6 +33,10 @@ func (l *LocalDriver) Reserve(_ context.Context, name string, size uint64) error
 
 	filePath := filepath.Join(l.basePath, name)
 
+	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
+		return err
+	}
+
 	f, err := os.Create(filePath)
 	if err != nil {
 		if errors.Is(err, os.ErrExist) {

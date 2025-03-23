@@ -17,10 +17,16 @@ import (
 	"github.com/vrabber/storage/internal/store/driver"
 )
 
-var configSource string
+var (
+	configSource string
+	storePath    string
+)
 
 func init() {
 	flag.StringVar(&configSource, "config-source", "env", "config source, supported values are: env, yaml")
+	flag.StringVar(&storePath, "store-path", ".", "path to store files")
+
+	flag.Parse()
 }
 
 func main() {
