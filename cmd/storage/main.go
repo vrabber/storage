@@ -12,6 +12,8 @@ import (
 	"github.com/vrabber/storage/internal/repository"
 	"github.com/vrabber/storage/internal/server"
 	"github.com/vrabber/storage/internal/service"
+	"github.com/vrabber/storage/internal/store"
+	"github.com/vrabber/storage/internal/store/driver"
 )
 
 var configSource string
@@ -38,11 +40,24 @@ func main() {
 	defer pool.Close()
 
 	repo := repository.NewRepositoryImplementation(pool)
+	fileStore := store.NewImplementation()
+
+	if err = setupStoreDrivers(fileStore); err != nil {
+		slog.Error("failed to setup store drivers", "err", err)
+		panic(err)
+	}
 
 	srv := service.NewService(repo)
 
-	storage := server.NewServer(srv)
-	if err = storage.Run(); err != nil {
+	server_ := server.NewServer(srv)
+	if err = server_.Run(); err != nil {
 		slog.Error("application stopped", "err", err)
 	}
+}
+
+func setupStoreDrivers(s store.Store) error {
+	if err := s.RegisterDriver(driver.NewLocalDriver(".")); err != nil {
+		return err
+	}
+	return nil
 }
